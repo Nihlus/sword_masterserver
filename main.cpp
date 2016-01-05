@@ -61,46 +61,51 @@ int main()
                 byte_fetch fetch;
                 fetch.ptr.swap(data);
 
-                int32_t found_canary = fetch.get<int32_t>();
-
-                while(found_canary != canary_start && !fetch.finished())
+                while(!fetch.finished())
                 {
-                    found_canary = fetch.get<int32_t>();
-                }
+                    int32_t found_canary = fetch.get<int32_t>();
 
-                int32_t type = fetch.get<int32_t>();
+                    while(found_canary != canary_start && !fetch.finished())
+                    {
+                        found_canary = fetch.get<int32_t>();
+                    }
 
-                if(type == message::GAMESERVER)
-                {
-                    int32_t found_end = fetch.get<int32_t>();
+                    int32_t type = fetch.get<int32_t>();
 
-                    if(found_end != canary_end)
+                    if(type == message::GAMESERVER)
+                    {
+                        int32_t found_end = fetch.get<int32_t>();
+
+                        if(found_end != canary_end)
+                            continue;
+
+                        game_server serv = master.server_from_sock(fd);
+                        master.add_server(serv);
+
+                        printf("adding new gameserver\n");
+
+                        sockets.erase(sockets.begin() + i);
+                        i--;
                         continue;
+                    }
 
-                    game_server serv = master.server_from_sock(fd);
-                    master.add_server(serv);
+                    if(type == message::CLIENT)
+                    {
+                        printf("client ping\n");
 
-                    printf("adding new gameserver\n");
+                        int32_t found_end = fetch.get<int32_t>();
 
-                    sockets.erase(sockets.begin() + i);
-                    i--;
-                    continue;
-                }
+                        if(found_end != canary_end)
+                            continue;
 
-                if(type == message::CLIENT)
-                {
-                    int32_t found_end = fetch.get<int32_t>();
+                        tcp_send(fd, master.get_client_response());
 
-                    if(found_end != canary_end)
+                        fd.close();
+
+                        sockets.erase(sockets.begin() + i);
+                        i--;
                         continue;
-
-                    tcp_send(fd, master.get_client_response());
-
-                    fd.close();
-
-                    sockets.erase(sockets.begin() + i);
-                    i--;
-                    continue;
+                    }
                 }
             }
         }

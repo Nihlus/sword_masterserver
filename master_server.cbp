@@ -53,6 +53,7 @@
 			<Add option="-logg" />
 		</Linker>
 		<Unit filename="main.cpp" />
+		<Unit filename="network_messages.hpp" />
 		<Unit filename="server.cpp" />
 		<Unit filename="server.hpp" />
 		<Extensions>
