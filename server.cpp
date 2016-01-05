@@ -5,18 +5,15 @@ void master_server::cull_dead()
 {
     for(int i=0; i<servers.size(); i++)
     {
-        for(int i=0; i<servers.size(); i++)
+        tcp_sock fd = servers[i].sock;
+
+        if(sock_readable(fd))
         {
-            tcp_sock fd = servers[i].sock;
+            auto data = tcp_recv(fd);
 
-            if(sock_readable(fd))
+            if(fd.invalid())
             {
-                auto data = tcp_recv(fd);
-
-                if(fd.invalid())
-                {
-                    servers[i].sock.close();
-                }
+                servers[i].sock.close();
             }
         }
 

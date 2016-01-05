@@ -18,7 +18,7 @@ void cleanup()
 
 int main()
 {
-    tcp_sock sockfd = tcp_host();
+    tcp_sock sockfd = tcp_host(MASTER_PORT);
 
     ///incase of an unclean exit.
     atexit(cleanup);
@@ -33,11 +33,6 @@ int main()
         ///to identify as a server, or client
         if(new_fd.valid())
         {
-            //game_server serv = master.server_from_sock(new_fd);
-            //master.add_server(serv);
-
-            //printf("Yay, new client!\n");
-
             sockets.push_back(new_fd);
         }
 
@@ -68,8 +63,10 @@ int main()
 
                 int32_t found_canary = fetch.get<int32_t>();
 
-                if(found_canary != canary_start)
-                    continue;
+                while(found_canary != canary_start && !fetch.finished())
+                {
+                    found_canary = fetch.get<int32_t>();
+                }
 
                 int32_t type = fetch.get<int32_t>();
 
