@@ -138,7 +138,7 @@ int main()
             }
         }*/
 
-        //sf::sleep(sf::milliseconds(1));
+        sf::sleep(sf::milliseconds(1));
     }
 
     closesocket(sockfd.get());
