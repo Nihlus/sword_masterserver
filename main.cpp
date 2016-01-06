@@ -74,12 +74,15 @@ int main()
 
                     if(type == message::GAMESERVER)
                     {
+                        ///the port the server is hosting on, NOT COMMUNICATING WITH ME
+                        uint32_t server_port = fetch.get<uint32_t>();
+
                         int32_t found_end = fetch.get<int32_t>();
 
                         if(found_end != canary_end)
                             continue;
 
-                        game_server serv = master.server_from_sock(fd);
+                        game_server serv = master.server_from_sock(fd, server_port);
                         master.add_server(serv);
 
                         printf("adding new gameserver\n");

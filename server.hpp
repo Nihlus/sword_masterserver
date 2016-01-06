@@ -10,7 +10,8 @@ struct game_server
     tcp_sock sock;
 
     std::string address = "127.0.0.1";
-    std::string port = SERVERPORT;
+    std::string my_port_to_them = SERVERPORT;
+    std::string their_host_port = SERVERPORT;
 
     int32_t max_players = -1;
     int32_t current_players = -1;
@@ -24,7 +25,7 @@ struct master_server
     void cull_dead();
     void tick_all();
 
-    game_server server_from_sock(tcp_sock& sock);
+    game_server server_from_sock(tcp_sock& sock, uint32_t port);
 
     void add_server(const game_server& serv);
 

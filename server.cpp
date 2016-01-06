@@ -37,16 +37,22 @@ void master_server::tick_all()
     }
 }
 
-game_server master_server::server_from_sock(tcp_sock& sock)
+game_server master_server::server_from_sock(tcp_sock& sock, uint32_t port)
 {
     std::string ip = sock.get_peer_ip();
+    std::string my_port_to_them = sock.get_peer_port();
+    std::string their_host_port = std::to_string(port);
 
-    printf("Ip %s joined\n", ip.c_str());
+
+    printf("Ip %s:%s joined, they are hosted on port %s\n", ip.c_str(), my_port_to_them.c_str(), their_host_port.c_str());
 
     ///I need a constructor!
     game_server serv;
+
     serv.sock = sock;
     serv.address = ip;
+    serv.my_port_to_them = my_port_to_them;
+    serv.their_host_port = their_host_port;
 
     return serv;
 }
@@ -73,7 +79,11 @@ std::vector<char> master_server::get_client_response()
         int32_t len = ip.length();
 
         vec.push_back(len);
-        vec.push_back<std::string>(ip, len);
+        vec.push_string<std::string>(ip.c_str(), len);
+
+        uint32_t port = atoi(servers[i].their_host_port.c_str());
+
+        vec.push_back(port);
     }
 
     vec.push_back(canary_end);
