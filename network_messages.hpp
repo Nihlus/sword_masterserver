@@ -19,8 +19,28 @@ namespace message
         CLIENTRESPONSE,
         CLIENTJOINREQUEST,
         CLIENTJOINACK,
-        FORWARDING
+        FORWARDING,
+        REPORT ///client has something to report to the server
     };
 }
+
+///canary_start
+///message::REPORT
+///TYPE
+///PLAYERID ///optional?
+///LEN
+///DATA
+///canary_end
+
+namespace report
+{
+    enum report : int32_t
+    {
+        DEATH,
+        COUNT
+    };
+}
+
+typedef report::report report_t;
 
 #endif // NETWORK_MESSAGES_HPP_INCLUDED
