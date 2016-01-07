@@ -20,7 +20,8 @@ namespace message
         CLIENTJOINREQUEST,
         CLIENTJOINACK,
         FORWARDING,
-        REPORT ///client has something to report to the server
+        REPORT, ///client has something to report to the server
+        TEAMASSIGNMENT
     };
 }
 
