@@ -21,7 +21,10 @@ namespace message
         CLIENTJOINACK,
         FORWARDING,
         REPORT, ///client has something to report to the server
-        TEAMASSIGNMENT
+        TEAMASSIGNMENT,
+        GAMEMODEUPDATE, ///periodic broadcast of the relevant stats
+        RESPAWNREQUEST,
+        RESPAWNRESPONSE
     };
 }
 
