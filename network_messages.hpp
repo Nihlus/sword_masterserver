@@ -24,7 +24,8 @@ namespace message
         TEAMASSIGNMENT,
         GAMEMODEUPDATE, ///periodic broadcast of the relevant stats
         RESPAWNREQUEST,
-        RESPAWNRESPONSE
+        RESPAWNRESPONSE,
+        RESPAWNINFO
     };
 }
 
