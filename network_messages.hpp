@@ -4,9 +4,12 @@
 #define GAMESERVER_PORT "6950"
 #define MASTER_PORT     "6850"
 
-#define MASTER_IP "127.0.0.1"
+//#define MASTER_IP "127.0.0.1"
+#define MASTER_IP "82.44.152.73"
 
 #include <stdint.h>
+
+#include <net/shared.hpp>
 
 namespace message
 {
@@ -20,6 +23,8 @@ namespace message
         CLIENTJOINREQUEST,
         CLIENTJOINACK,
         FORWARDING,
+        FORWARDING_RELIABLE, ///;_;
+        FORWARDING_RELIABLE_ACK,
         REPORT, ///client has something to report to the server
         TEAMASSIGNMENT,
         GAMEMODEUPDATE, ///periodic broadcast of the relevant stats
@@ -47,5 +52,26 @@ namespace report
 }
 
 typedef report::report report_t;
+
+///this is the data for the forwarding specific section of the packet
+struct forwarding_data
+{
+    ///unique to the client, client auto increments, server discards multiple packets with same id
+    ///then, when we pipe it back to the client, they ignore multiple placets with the same id
+    ///winrar
+    ///server may need to change the packet id to be its own packet id, rather than the other clients id
+    int32_t packet_id = -1;
+};
+
+///this is a descriptor of the above for clients/servers to keep
+struct forwarding_info
+{
+    bool sent_ack = false;
+    bool skip_send = false;
+    uint32_t id = -1;
+    float time_elapsed = 0.f;
+
+    byte_vector data;
+};
 
 #endif // NETWORK_MESSAGES_HPP_INCLUDED

@@ -43,7 +43,6 @@ game_server master_server::server_from_sock(tcp_sock& sock, uint32_t port)
     std::string my_port_to_them = sock.get_peer_port();
     std::string their_host_port = std::to_string(port);
 
-
     printf("Ip %s:%s joined, they are hosted on port %s\n", ip.c_str(), my_port_to_them.c_str(), their_host_port.c_str());
 
     ///I need a constructor!

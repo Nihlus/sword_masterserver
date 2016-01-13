@@ -113,34 +113,6 @@ int main()
             }
         }
 
-        /*for(int i=0; i<sockets.size(); i++)
-        {
-            tcp_sock fd = sockets[i];
-
-            if(sock_readable(fd))
-            {
-                auto data = tcp_recv(fd);
-
-                if(data.size() == 0 || fd.invalid())
-                {
-                    printf("boo, a client disconnected!\n");
-
-                    sockets.erase(sockets.begin() + i);
-                    i--;
-                    continue;
-                }
-
-                for(auto& their_fd : sockets)
-                {
-                    ///do not pipe my data back to me
-                    if(fd == their_fd)
-                        continue;
-
-                    tcp_send(their_fd, data);
-                }
-            }
-        }*/
-
         sf::sleep(sf::milliseconds(1));
     }
 
