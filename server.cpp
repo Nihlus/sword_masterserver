@@ -5,7 +5,7 @@ void master_server::cull_dead()
 {
     for(int i=0; i<servers.size(); i++)
     {
-        tcp_sock fd = servers[i].sock;
+        tcp_sock& fd = servers[i].sock;
 
         if(sock_readable(fd))
         {
