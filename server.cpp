@@ -58,6 +58,18 @@ game_server master_server::server_from_sock(tcp_sock& sock, uint32_t port)
 
 void master_server::add_server(const game_server& serv)
 {
+    for(auto& i : servers)
+    {
+        if(i.address == serv.address && i.their_host_port == serv.their_host_port)
+        {
+            i = serv;
+
+            printf("eliminating duplicate server\n");
+
+            return;
+        }
+    }
+
     servers.push_back(serv);
 }
 

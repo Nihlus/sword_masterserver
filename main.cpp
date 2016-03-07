@@ -25,6 +25,7 @@ int main()
 
     master_server master;
 
+    ///I think we have to keepalive the connections
     while(1)
     {
         tcp_sock new_fd = conditional_accept(sockfd);
