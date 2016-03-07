@@ -5,6 +5,10 @@
 #include "server.hpp"
 #include "network_messages.hpp"
 
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+
 using namespace std;
 
 std::vector<tcp_sock> sockets;
@@ -95,7 +99,11 @@ int main()
 
                     if(type == message::CLIENT)
                     {
+                        auto t = std::time(nullptr);
+                        auto tm = *std::localtime(&t);
+
                         printf("client ping\n");
+                        std::cout << std::put_time(&tm, "%d-%m-%Y %H-%M-%S") << std::endl;
 
                         int32_t found_end = fetch.get<int32_t>();
 
