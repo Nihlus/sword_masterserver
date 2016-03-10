@@ -5,9 +5,14 @@
 #define MASTER_PORT     "6850"
 
 //#define MASTER_IP "127.0.0.1"
-//#define MASTER_IP "82.44.152.73"
 
-#define MASTER_IP "88.150.175.30"
+/*#define MASTER_IP "88.\
+                   150.\
+                   175.\
+                   30"*/
+
+#define MASTER_IP "enigma.simrai.com"
+
 
 #include <stdint.h>
 
@@ -32,7 +37,9 @@ namespace message
         GAMEMODEUPDATE, ///periodic broadcast of the relevant stats
         RESPAWNREQUEST,
         RESPAWNRESPONSE,
-        RESPAWNINFO
+        RESPAWNINFO,
+        PING,
+        PING_RESPONSE
     };
 }
 
