@@ -39,7 +39,8 @@ namespace message
         RESPAWNRESPONSE,
         RESPAWNINFO,
         PING,
-        PING_RESPONSE
+        PING_RESPONSE,
+        PING_DATA
     };
 }
 
