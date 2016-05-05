@@ -79,14 +79,18 @@ void receive_pings(std::vector<udp_game_server>& servers)
     if(!sock_readable(host))
         return;
 
-    printf("got ping\n");
+    //printf("got ping\n");
 
     sockaddr_storage store;
 
     auto data = udp_receive_from(host, &store);
 
     if(!contains(servers, store))
+    {
+        printf("New server\n");
+
         servers.push_back({store, sf::Clock()});
+    }
 
     if(data.size() <= 0)
         return;
@@ -96,7 +100,7 @@ void receive_pings(std::vector<udp_game_server>& servers)
 
     udp_serv_info info = process_ping(fetch);
 
-    printf("%i %i\n", info.player_count, info.port_num);
+    //printf("%i %i\n", info.player_count, info.port_num);
 
     for(int i=0; i<servers.size(); i++)
     {
@@ -126,6 +130,37 @@ void process_timeouts(std::vector<udp_game_server>& servers)
     }
 }
 
+std::vector<char> get_udp_client_respose(std::vector<udp_game_server>& servers)
+{
+    byte_vector vec;
+
+    vec.push_back(canary_start);
+    vec.push_back(message::CLIENTRESPONSE);
+
+    int32_t server_nums = servers.size();
+
+    vec.push_back(server_nums);
+
+    for(int i=0; i<server_nums; i++)
+    {
+        udp_game_server serv = servers[i];
+
+        std::string ip = get_addr_ip(serv.store);
+        int32_t len = ip.length();
+
+        vec.push_back(len);
+        vec.push_string<std::string>(ip.c_str(), len);
+
+        uint32_t port = serv.info.port_num;
+
+        vec.push_back(port);
+    }
+
+    vec.push_back(canary_end);
+
+    return vec.ptr;
+}
+
 int main()
 {
     tcp_sock sockfd = tcp_host(MASTER_PORT);
@@ -133,7 +168,7 @@ int main()
     ///incase of an unclean exit.
     atexit(cleanup);
 
-    master_server master;
+    //master_server master;
 
     std::vector<udp_game_server> udp_serverlist;
 
@@ -152,7 +187,7 @@ int main()
             sockets.push_back(new_fd);
         }
 
-        master.cull_dead();
+        //master.cull_dead();
 
         //master.tick_all();
 
@@ -188,7 +223,7 @@ int main()
 
                     int32_t type = fetch.get<int32_t>();
 
-                    if(type == message::GAMESERVER)
+                    /*if(type == message::GAMESERVER)
                     {
                         ///the port the server is hosting on, NOT COMMUNICATING WITH ME
                         uint32_t server_port = fetch.get<uint32_t>();
@@ -206,7 +241,7 @@ int main()
                         sockets.erase(sockets.begin() + i);
                         i--;
                         continue;
-                    }
+                    }*/
 
                     if(type == message::CLIENT)
                     {
@@ -221,7 +256,9 @@ int main()
                         if(found_end != canary_end)
                             continue;
 
-                        tcp_send(fd, master.get_client_response());
+                        //tcp_send(fd, master.get_client_response());
+
+                        tcp_send(fd, get_udp_client_respose(udp_serverlist));
 
                         fd.close();
 
