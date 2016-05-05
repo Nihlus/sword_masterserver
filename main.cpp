@@ -20,10 +20,18 @@ void cleanup()
         closesocket(i.get());
 }
 
+struct udp_serv_info
+{
+    int32_t player_count = 0;
+    int32_t port_num = atoi(GAMESERVER_PORT);
+};
+
 struct udp_game_server
 {
     sockaddr_storage store;
     sf::Clock timeout_time;
+
+    udp_serv_info info;
 
     constexpr static float timeout_s = 3;
 };
@@ -37,6 +45,22 @@ bool contains(std::vector<udp_game_server>& servers, sockaddr_storage& store)
     }
 
     return false;
+}
+
+udp_serv_info process_ping(byte_fetch& fetch)
+{
+    if(fetch.ptr.size() < sizeof(int32_t)*2)
+        return {};
+
+    int32_t player_count = fetch.get<int32_t>();
+    int32_t port_num = fetch.get<int32_t>();
+
+    udp_serv_info info;
+
+    info.player_count = player_count;
+    info.port_num = port_num;
+
+    return info;
 }
 
 void receive_pings(std::vector<udp_game_server>& servers)
@@ -64,11 +88,23 @@ void receive_pings(std::vector<udp_game_server>& servers)
     if(!contains(servers, store))
         servers.push_back({store, sf::Clock()});
 
+    if(data.size() <= 0)
+        return;
+
+    byte_fetch fetch;
+    fetch.ptr.swap(data);
+
+    udp_serv_info info = process_ping(fetch);
+
+    printf("%i %i\n", info.player_count, info.port_num);
+
     for(int i=0; i<servers.size(); i++)
     {
         if(servers[i].store == store)
         {
             servers[i].timeout_time.restart();
+
+            servers[i].info = info;
         }
     }
 }
