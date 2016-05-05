@@ -2,6 +2,7 @@
 #include <net/shared.hpp>
 
 #include <vector>
+#include <map>
 #include "server.hpp"
 #include "network_messages.hpp"
 
@@ -19,6 +20,75 @@ void cleanup()
         closesocket(i.get());
 }
 
+struct udp_game_server
+{
+    sockaddr_storage store;
+    sf::Clock timeout_time;
+
+    constexpr static float timeout_s = 3;
+};
+
+bool contains(std::vector<udp_game_server>& servers, sockaddr_storage& store)
+{
+    for(auto& i : servers)
+    {
+        if(i.store == store)
+            return true;
+    }
+
+    return false;
+}
+
+void receive_pings(std::vector<udp_game_server>& servers)
+{
+    static udp_sock host;
+    static bool init = false;
+
+    if(!init)
+    {
+        host = udp_host(MASTER_PORT);
+        init = true;
+
+        printf("Registerd udp on port %s\n", host.get_host_port().c_str());
+    }
+
+    if(!sock_readable(host))
+        return;
+
+    printf("got ping\n");
+
+    sockaddr_storage store;
+
+    auto data = udp_receive_from(host, &store);
+
+    if(!contains(servers, store))
+        servers.push_back({store, sf::Clock()});
+
+    for(int i=0; i<servers.size(); i++)
+    {
+        if(servers[i].store == store)
+        {
+            servers[i].timeout_time.restart();
+        }
+    }
+}
+
+void process_timeouts(std::vector<udp_game_server>& servers)
+{
+    for(int i=0; i<servers.size(); i++)
+    {
+        auto serv = servers[i];
+
+        if(serv.timeout_time.getElapsedTime().asSeconds() > serv.timeout_s)
+        {
+            printf("timeout gameserver\n");
+
+            servers.erase(servers.begin() + i);
+            i--;
+            continue;
+        }
+    }
+}
 
 int main()
 {
@@ -29,9 +99,14 @@ int main()
 
     master_server master;
 
+    std::vector<udp_game_server> udp_serverlist;
+
     ///I think we have to keepalive the connections
     while(1)
     {
+        receive_pings(udp_serverlist);
+        process_timeouts(udp_serverlist);
+
         tcp_sock new_fd = conditional_accept(sockfd);
 
         ///really... we want to wait for something
