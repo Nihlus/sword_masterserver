@@ -10,6 +10,9 @@
 #include <iomanip>
 #include <ctime>
 
+#if defined(__linux__)
+#include <unistd.h>
+#endif
 using namespace std;
 
 std::vector<tcp_sock> sockets;
@@ -17,7 +20,13 @@ std::vector<tcp_sock> sockets;
 void cleanup()
 {
     for(auto& i : sockets)
-        closesocket(i.get());
+    {
+#if defined(WIN32)
+	    closesocket(i.get());
+#elif defined(__linux__)
+	    close(i.get());
+#endif
+    }
 }
 
 struct udp_serv_info
@@ -33,7 +42,6 @@ struct udp_game_server
 
     udp_serv_info info;
 
-    constexpr static float timeout_s = 3;
 };
 
 bool contains(std::vector<udp_game_server>& servers, sockaddr_storage& store)
@@ -119,7 +127,7 @@ void process_timeouts(std::vector<udp_game_server>& servers)
     {
         auto serv = servers[i];
 
-        if(serv.timeout_time.getElapsedTime().asSeconds() > serv.timeout_s)
+        if(serv.timeout_time.getElapsedTime().asSeconds() > 3)
         {
             printf("timeout gameserver\n");
 
@@ -260,7 +268,7 @@ int main()
 
                         tcp_send(fd, get_udp_client_respose(udp_serverlist));
 
-                        fd.close();
+                        fd.close_tcp_socket();
 
                         sockets.erase(sockets.begin() + i);
                         i--;
@@ -273,10 +281,21 @@ int main()
         sf::sleep(sf::milliseconds(1));
     }
 
-    closesocket(sockfd.get());
+#if defined(WIN32)
+	closesocket(sockfd.get());
+#elif defined(__linux__)
+	close(sockfd.get());
+#endif
+
 
     for(auto& i : sockets)
-        closesocket(i.get());
+    {
+#if defined(WIN32)
+	    closesocket(i.get());
+#elif defined(__linux__)
+	    close(i.get());
+#endif
+    }
 
     return 0;
 }

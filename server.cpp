@@ -13,7 +13,7 @@ void master_server::cull_dead()
 
             if(fd.invalid())
             {
-                servers[i].sock.close();
+                servers[i].sock.close_tcp_socket();
             }
         }
 
@@ -21,7 +21,7 @@ void master_server::cull_dead()
         {
             printf("gameserver died\n");
 
-            servers[i].sock.close();
+            servers[i].sock.close_tcp_socket();
 
             servers.erase(servers.begin() + i);
             i--;
