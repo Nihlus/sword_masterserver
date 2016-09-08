@@ -210,7 +210,7 @@ int main()
                 {
                     printf("boo, a client disconnected!\n");
 
-                    fd.close();
+                    fd.close_socket();
 
                     sockets.erase(sockets.begin() + i);
                     i--;
@@ -268,7 +268,7 @@ int main()
 
                         tcp_send(fd, get_udp_client_respose(udp_serverlist));
 
-                        fd.close_tcp_socket();
+                        fd.close_socket();
 
                         sockets.erase(sockets.begin() + i);
                         i--;
