@@ -79,15 +79,13 @@ void receive_pings(std::vector<udp_game_server>& servers)
     if(!sock_readable(host))
         return;
 
-    //printf("got ping\n");
-
     sockaddr_storage store;
 
     auto data = udp_receive_from(host, &store);
 
     if(!contains(servers, store))
     {
-        printf("New server\n");
+        printf("New server: IP %s Port %s\n", get_addr_ip(store).c_str(), get_addr_port(store).c_str());
 
         servers.push_back({store, sf::Clock()});
     }
@@ -203,6 +201,8 @@ int main()
                 if(fd.invalid())
                 {
                     printf("boo, a client disconnected!\n");
+
+                    fd.close();
 
                     sockets.erase(sockets.begin() + i);
                     i--;
